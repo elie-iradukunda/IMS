@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+
+    <main class="app-main">
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${pageSubtitle})}"></div>
+        <div th:replace="~{fragments/messages :: flash}"></div>
+
+        <section class="stats-grid">
+            <article class="metric-card">
+                <span>Total Assets</span>
+                <strong th:text="${summary.totalAssets}">0</strong>
+            </article>
+            <article class="metric-card tone-green">
+                <span>Available</span>
+                <strong th:text="${summary.availableAssets}">0</strong>
+            </article>
+            <article class="metric-card tone-blue">
+                <span>Assigned</span>
+                <strong th:text="${summary.assignedAssets}">0</strong>
+            </article>
+            <article class="metric-card tone-amber">
+                <span>Maintenance</span>
+                <strong th:text="${summary.maintenanceAssets}">0</strong>
+            </article>
+            <article class="metric-card tone-red">
+                <span>Damaged</span>
+                <strong th:text="${summary.damagedAssets}">0</strong>
+            </article>
+            <article class="metric-card tone-slate">
+                <span>Audit Entries</span>
+                <strong th:text="${summary.totalAuditEntries}">0</strong>
+            </article>
+        </section>
+
+        <section class="two-column">
+            <article class="panel">
+                <div class="panel-header">
+                    <h2>Status Distribution</h2>
+                    <p>Live inventory state across the system</p>
+                </div>
+                <div class="bar-list">
+                    <div class="metric-row" th:each="bar : ${statusBars}">
+                        <div class="metric-label-line">
+                            <span th:text="${bar.label}">Available</span>
+                            <strong th:text="${bar.value}">5</strong>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" th:classappend="${bar.tone}" th:style="'width:' + ${bar.percentage} + '%'"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-header">
+                    <h2>Inventory Mix by Device Type</h2>
+                    <p>Snapshot by equipment category</p>
+                </div>
+                <div class="bar-list">
+                    <div class="metric-row" th:each="bar : ${typeBars}">
+                        <div class="metric-label-line">
+                            <span th:text="${bar.label}">Laptop</span>
+                            <strong th:text="${bar.value}">2</strong>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" th:classappend="${bar.tone}" th:style="'width:' + ${bar.percentage} + '%'"></div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="two-column">
+            <article class="panel">
+                <div class="panel-header">
+                    <h2>Recent Equipment Movements</h2>
+                    <p>Latest issue and return activity</p>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Asset Tag</th>
+                            <th>Type</th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Issued At</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="movement : ${recentMovements}">
+                            <td th:text="${movement.asset.assetTag}">ATL-LAP-001</td>
+                            <td th:text="${movement.movementType}">Issue</td>
+                            <td th:text="${movement.employee != null ? movement.employee.fullName : '-'}">User</td>
+                            <td th:text="${movement.toDepartment != null ? movement.toDepartment.name : '-'}">IT</td>
+                            <td th:text="${#temporals.format(movement.issuedAt, 'dd MMM yyyy HH:mm')}">23 Apr 2026 15:00</td>
+                            <td th:text="${movement.lifecycleStatus}">Open</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(recentMovements)}">
+                            <td colspan="6">No movement records available.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-header">
+                    <h2>Open Assignments</h2>
+                    <p>Assets currently in staff custody</p>
+                </div>
+                <div class="table-wrap compact-table">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Condition</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="movement : ${openAssignments}">
+                            <td th:text="${movement.asset.assetTag}">ATL-LAP-001</td>
+                            <td th:text="${movement.employee != null ? movement.employee.fullName : '-'}">User</td>
+                            <td th:text="${movement.toDepartment != null ? movement.toDepartment.name : '-'}">IT</td>
+                            <td th:text="${movement.conditionAtIssue}">Good</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(openAssignments)}">
+                            <td colspan="4">No active assignments at the moment.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Latest Audit Trail</h2>
+                <p>Most recent accountability entries across the platform</p>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Asset Tag</th>
+                        <th>Action</th>
+                        <th>Actor</th>
+                        <th>Details</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="entry : ${recentAuditEntries}">
+                        <td th:text="${#temporals.format(entry.createdAt, 'dd MMM yyyy HH:mm')}">23 Apr 2026 15:00</td>
+                        <td th:text="${entry.assetTagSnapshot}">ATL-LAP-001</td>
+                        <td th:text="${entry.action}">ASSET_REGISTERED</td>
+                        <td th:text="${entry.actorName}">Admin</td>
+                        <td th:text="${entry.details}">Audit detail</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(recentAuditEntries)}">
+                        <td colspan="5">No audit records available.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

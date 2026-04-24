@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+    <section class="auth-hero">
+        <div class="brand-name">IMS</div>
+        <h1>Create Your Inventory Officer Account</h1>
+        <p>Register a new account to access the platform, track assets, manage returns, and work with the linked dashboard pages.</p>
+        <ul>
+            <li>Inventory officer accounts are created from this page</li>
+            <li>The seeded SysAdmin account remains available for administration</li>
+            <li>All account passwords are securely encoded before storage</li>
+        </ul>
+    </section>
+
+    <section class="auth-card">
+        <h2>Create Account</h2>
+        <p class="subtitle">Fill in your details to register a new login.</p>
+
+        <div th:replace="~{fragments/messages :: flash}"></div>
+
+        <form th:action="@{/register}" th:object="${registrationForm}" method="post" class="form-grid">
+            <th:block th:replace="~{fragments/csrf :: token}"></th:block>
+            <label>
+                <span>Full Name</span>
+                <input th:field="*{fullName}" type="text" placeholder="Enter full name" required>
+            </label>
+            <label>
+                <span>Username</span>
+                <input th:field="*{username}" type="text" placeholder="Choose a username" required>
+            </label>
+            <label>
+                <span>Email</span>
+                <input th:field="*{email}" type="email" placeholder="Enter email address" required>
+            </label>
+            <label>
+                <span>Password</span>
+                <input th:field="*{password}" type="password" placeholder="Create password" required>
+            </label>
+            <label>
+                <span>Confirm Password</span>
+                <input th:field="*{confirmPassword}" type="password" placeholder="Confirm password" required>
+            </label>
+            <button class="btn btn-primary btn-block" type="submit">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            <span>Already registered?</span>
+            <a th:href="@{/login}">Back to login</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

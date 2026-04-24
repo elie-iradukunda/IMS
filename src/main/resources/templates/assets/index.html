@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assets | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+
+    <main class="app-main">
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${pageSubtitle})}"></div>
+        <div th:replace="~{fragments/messages :: flash}"></div>
+
+        <section class="toolbar-panel">
+            <form method="get" th:action="@{/assets}" class="toolbar-form">
+                <input type="text" name="q" th:value="${q}" placeholder="Search by tag, serial, brand, model, or assignee">
+                <select name="type">
+                    <option value="">All Types</option>
+                    <option th:each="option : ${assetTypes}" th:value="${option.name()}" th:text="${option}"
+                            th:selected="${selectedType == option}"></option>
+                </select>
+                <select name="status">
+                    <option value="">All Statuses</option>
+                    <option th:each="option : ${assetStatuses}" th:value="${option.name()}" th:text="${option}"
+                            th:selected="${selectedStatus == option}"></option>
+                </select>
+                <select name="condition">
+                    <option value="">All Conditions</option>
+                    <option th:each="option : ${assetConditions}" th:value="${option.name()}" th:text="${option}"
+                            th:selected="${selectedCondition == option}"></option>
+                </select>
+                <button class="btn btn-primary" type="submit">Filter</button>
+                <a class="btn btn-secondary" th:href="@{/assets}">Reset</a>
+            </form>
+        </section>
+
+        <section class="two-column wide-left">
+            <article class="panel sticky-panel">
+                <div class="panel-header">
+                    <h2 th:text="${assetForm.id != null} ? 'Update Asset' : 'Register Asset'">Register Asset</h2>
+                    <p>Capture complete equipment details for the inventory register.</p>
+                </div>
+
+                <form th:action="@{/assets/save}" th:object="${assetForm}" method="post" class="form-grid three-up">
+                    <th:block th:replace="~{fragments/csrf :: token}"></th:block>
+                    <input type="hidden" th:field="*{id}">
+
+                    <label>
+                        <span>Asset Tag</span>
+                        <input th:field="*{assetTag}" type="text" required>
+                    </label>
+                    <label>
+                        <span>Serial Number</span>
+                        <input th:field="*{serialNumber}" type="text" required>
+                    </label>
+                    <label>
+                        <span>Device Type</span>
+                        <select th:field="*{assetType}" required>
+                            <option value="">Select type</option>
+                            <option th:each="option : ${assetTypes}" th:value="${option.name()}" th:text="${option}"></option>
+                        </select>
+                    </label>
+
+                    <label>
+                        <span>Brand</span>
+                        <input th:field="*{brand}" type="text" required>
+                    </label>
+                    <label>
+                        <span>Model</span>
+                        <input th:field="*{model}" type="text" required>
+                    </label>
+                    <label>
+                        <span>Home Department</span>
+                        <select th:field="*{homeDepartmentId}" required>
+                            <option value="">Select department</option>
+                            <option th:each="department : ${departments}" th:value="${department.id}"
+                                    th:text="${department.name}"></option>
+                        </select>
+                    </label>
+
+                    <label>
+                        <span>Operating System</span>
+                        <input th:field="*{operatingSystem}" type="text">
+                    </label>
+                    <label>
+                        <span>Processor</span>
+                        <input th:field="*{processor}" type="text">
+                    </label>
+                    <label>
+                        <span>Purchase Date</span>
+                        <input th:field="*{purchaseDate}" type="date">
+                    </label>
+
+                    <label>
+                        <span>RAM (GB)</span>
+                        <input th:field="*{ramGb}" type="number" min="0">
+                    </label>
+                    <label>
+                        <span>Storage (GB)</span>
+                        <input th:field="*{storageGb}" type="number" min="0">
+                    </label>
+                    <label>
+                        <span>Warranty Expiry</span>
+                        <input th:field="*{warrantyExpiry}" type="date">
+                    </label>
+
+                    <label>
+                        <span>Condition</span>
+                        <select th:field="*{condition}">
+                            <option th:each="option : ${assetConditions}" th:value="${option.name()}" th:text="${option}"></option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Status</span>
+                        <select th:field="*{status}">
+                            <option th:each="option : ${assetStatuses}" th:value="${option.name()}" th:text="${option}"></option>
+                        </select>
+                    </label>
+                    <label class="full-span">
+                        <span>Notes</span>
+                        <textarea th:field="*{notes}" rows="4" placeholder="Add equipment notes, ownership remarks, or maintenance context"></textarea>
+                    </label>
+
+                    <div class="form-actions full-span">
+                        <button class="btn btn-primary" type="submit" th:text="${assetForm.id != null} ? 'Update Asset' : 'Create Asset'">Create Asset</button>
+                        <a class="btn btn-secondary" th:href="@{/assets}">Clear Form</a>
+                    </div>
+                </form>
+            </article>
+
+            <article class="panel">
+                <div class="panel-header">
+                    <h2>Asset Catalog</h2>
+                    <p th:text="${#lists.size(assets)} + ' matching records found'">0 matching records found</p>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Asset Tag</th>
+                            <th>Type</th>
+                            <th>Brand / Model</th>
+                            <th>Department</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                            <th>Condition</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="asset : ${assets}">
+                            <td th:text="${asset.assetTag}">ATL-LAP-001</td>
+                            <td th:text="${asset.assetType}">Laptop</td>
+                            <td th:text="${asset.brand + ' ' + asset.model}">Dell Latitude</td>
+                            <td th:text="${asset.homeDepartment != null ? asset.homeDepartment.name : '-'}">IT</td>
+                            <td th:text="${asset.assignedEmployee != null ? asset.assignedEmployee.fullName : '-'}">User</td>
+                            <td th:text="${asset.status}">Available</td>
+                            <td th:text="${asset.condition}">Good</td>
+                            <td>
+                                <div class="action-stack">
+                                    <a class="btn btn-link"
+                                       th:href="@{/assets(edit=${asset.id}, q=${q}, type=${selectedType != null ? selectedType.name() : null}, status=${selectedStatus != null ? selectedStatus.name() : null}, condition=${selectedCondition != null ? selectedCondition.name() : null})}">
+                                        Edit
+                                    </a>
+                                    <form th:action="@{/assets/{assetId}/delete(assetId=${asset.id})}" method="post">
+                                        <th:block th:replace="~{fragments/csrf :: token}"></th:block>
+                                        <button class="btn btn-link danger-link" type="submit"
+                                                onclick="return confirm('Delete this asset? This only works for assets without movement history.');">
+                                            Delete
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/assets/{assetId}/retire(assetId=${asset.id})}" method="post">
+                                        <th:block th:replace="~{fragments/csrf :: token}"></th:block>
+                                        <button class="btn btn-link danger-link" type="submit">Retire</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(assets)}">
+                            <td colspan="8">No assets matched the current filters.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

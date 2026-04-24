@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+
+    <main class="app-main">
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${pageSubtitle})}"></div>
+        <div th:replace="~{fragments/messages :: flash}"></div>
+
+        <section class="toolbar-panel">
+            <form th:action="@{/reports}" th:object="${reportFilter}" method="get" class="toolbar-form">
+                <input th:field="*{fromDate}" type="date">
+                <input th:field="*{toDate}" type="date">
+                <select th:field="*{departmentId}">
+                    <option value="">All Departments</option>
+                    <option th:each="department : ${departments}" th:value="${department.id}" th:text="${department.name}"></option>
+                </select>
+                <select th:field="*{assetType}">
+                    <option value="">All Types</option>
+                    <option th:each="type : ${assetTypes}" th:value="${type.name()}" th:text="${type}"></option>
+                </select>
+                <select th:field="*{assetStatus}">
+                    <option value="">All Statuses</option>
+                    <option th:each="status : ${assetStatuses}" th:value="${status.name()}" th:text="${status}"></option>
+                </select>
+                <button class="btn btn-primary" type="submit">Apply Filters</button>
+                <a class="btn btn-secondary" th:href="@{/reports}">Reset</a>
+            </form>
+        </section>
+
+        <section class="stats-grid slim-grid">
+            <article class="metric-card">
+                <span>Matching Assets</span>
+                <strong th:text="${#lists.size(reportAssets)}">0</strong>
+            </article>
+            <article class="metric-card tone-blue">
+                <span>Matching Movements</span>
+                <strong th:text="${#lists.size(reportMovements)}">0</strong>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Export Current Report</h2>
+                <p>Download the currently filtered data as CSV files.</p>
+            </div>
+            <div class="action-row">
+                <a class="btn btn-primary"
+                   th:href="@{/reports/assets/export(fromDate=${reportFilter.fromDate}, toDate=${reportFilter.toDate}, departmentId=${reportFilter.departmentId}, assetType=${reportFilter.assetType != null ? reportFilter.assetType.name() : null}, assetStatus=${reportFilter.assetStatus != null ? reportFilter.assetStatus.name() : null})}">
+                    Download Asset CSV
+                </a>
+                <a class="btn btn-secondary"
+                   th:href="@{/reports/movements/export(fromDate=${reportFilter.fromDate}, toDate=${reportFilter.toDate}, departmentId=${reportFilter.departmentId}, assetType=${reportFilter.assetType != null ? reportFilter.assetType.name() : null}, assetStatus=${reportFilter.assetStatus != null ? reportFilter.assetStatus.name() : null})}">
+                    Download Movement CSV
+                </a>
+            </div>
+        </section>
+
+        <section class="two-column">
+            <article class="panel">
+                <div class="panel-header">
+                    <h2>Asset Report</h2>
+                    <p>Device inventory matching the active filter set.</p>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Asset Tag</th>
+                            <th>Type</th>
+                            <th>Brand / Model</th>
+                            <th>Department</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                            <th>Condition</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="asset : ${reportAssets}">
+                            <td th:text="${asset.assetTag}">ATL-LAP-001</td>
+                            <td th:text="${asset.assetType}">Laptop</td>
+                            <td th:text="${asset.brand + ' ' + asset.model}">Dell Latitude</td>
+                            <td th:text="${asset.assignedDepartment != null ? asset.assignedDepartment.name : asset.homeDepartment.name}">IT</td>
+                            <td th:text="${asset.assignedEmployee != null ? asset.assignedEmployee.fullName : '-'}">User</td>
+                            <td th:text="${asset.status}">Available</td>
+                            <td th:text="${asset.condition}">Good</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(reportAssets)}">
+                            <td colspan="7">No assets matched the current report filter.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="panel">
+                <div class="panel-header">
+                    <h2>Movement Report</h2>
+                    <p>Transaction history matching the current filter set.</p>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Asset Tag</th>
+                            <th>Type</th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Issued At</th>
+                            <th>Returned At</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="movement : ${reportMovements}">
+                            <td th:text="${movement.asset.assetTag}">ATL-LAP-001</td>
+                            <td th:text="${movement.movementType}">Issue</td>
+                            <td th:text="${movement.employee != null ? movement.employee.fullName : '-'}">User</td>
+                            <td th:text="${movement.toDepartment != null ? movement.toDepartment.name : '-'}">IT</td>
+                            <td th:text="${#temporals.format(movement.issuedAt, 'dd MMM yyyy HH:mm')}">23 Apr 2026 15:00</td>
+                            <td th:text="${movement.returnedAt != null ? #temporals.format(movement.returnedAt, 'dd MMM yyyy HH:mm') : '-'}">24 Apr 2026 10:00</td>
+                            <td th:text="${movement.lifecycleStatus}">Open</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(reportMovements)}">
+                            <td colspan="7">No movement history matched the current report filter.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
+</body>
+</html>

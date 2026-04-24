@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+    <section class="auth-hero">
+        <div class="brand-name">IMS</div>
+        <h1>Something needs attention</h1>
+        <p>The platform could not complete that request. Use the details on the right, then go back to continue your work.</p>
+        <ul>
+            <li>Form values are now validated more carefully</li>
+            <li>Invalid dropdown or date values should return to the form with a message</li>
+            <li>This page is the fallback for unexpected application errors</li>
+        </ul>
+    </section>
+
+    <section class="auth-card">
+        <h2 th:text="'Error ' + ${status}">Error</h2>
+        <p class="subtitle" th:text="${error != null ? error : 'Unexpected application error'}">Unexpected application error</p>
+        <div class="alert alert-danger">
+            <span th:text="${message != null && !#strings.isEmpty(message) ? message : 'Please go back, refresh the page, and try again.'}">
+                Please go back, refresh the page, and try again.
+            </span>
+        </div>
+        <div class="form-actions">
+            <a class="btn btn-primary" th:href="@{/dashboard}">Go to Dashboard</a>
+            <a class="btn btn-secondary" th:href="@{/assets}">Open Assets</a>
+            <a class="btn btn-secondary" th:href="@{/assignments}">Open Assignments</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

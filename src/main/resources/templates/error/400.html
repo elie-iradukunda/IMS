@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Error | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+    <section class="auth-hero">
+        <div class="brand-name">IMS</div>
+        <h1>We could not process that request</h1>
+        <p>This usually means one of the submitted values was incomplete or not in the expected format.</p>
+        <ul>
+            <li>Refresh the page and try the action again</li>
+            <li>Make sure all dropdowns have a value</li>
+            <li>Use the calendar inputs for dates</li>
+        </ul>
+    </section>
+
+    <section class="auth-card">
+        <h2>Error 400</h2>
+        <p class="subtitle">Bad Request</p>
+        <div class="alert alert-danger">
+            Please return to the page you were using and submit the form again.
+        </div>
+        <div class="form-actions">
+            <a class="btn btn-primary" th:href="@{/assets}">Asset Registry</a>
+            <a class="btn btn-secondary" th:href="@{/assignments}">Assignments</a>
+            <a class="btn btn-secondary" th:href="@{/dashboard}">Dashboard</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

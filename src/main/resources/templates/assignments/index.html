@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+
+    <main class="app-main">
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${pageSubtitle})}"></div>
+        <div th:replace="~{fragments/messages :: flash}"></div>
+
+        <section class="two-column">
+            <article class="panel">
+                <div class="panel-header">
+                    <h2>Issue Asset</h2>
+                    <p>Assign an available device to a receiving employee and department.</p>
+                </div>
+
+                <form th:action="@{/assignments/issue}" th:object="${issueForm}" method="post" class="form-grid">
+                    <th:block th:replace="~{fragments/csrf :: token}"></th:block>
+                    <label>
+                        <span>Available Asset</span>
+                        <select th:field="*{assetId}" required>
+                            <option value="">Select asset</option>
+                            <option th:each="asset : ${availableAssets}" th:value="${asset.id}"
+                                    th:text="${asset.assetTag + ' - ' + asset.brand + ' ' + asset.model}"></option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Department</span>
+                        <select th:field="*{departmentId}" required data-assignment-department>
+                            <option value="">Select department</option>
+                            <option th:each="department : ${departments}" th:value="${department.id}"
+                                    th:text="${department.name}"></option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Employee</span>
+                        <select th:field="*{employeeId}" required data-assignment-employee>
+                            <option value="">Select employee</option>
+                            <option th:each="employee : ${employees}" th:value="${employee.id}"
+                                    th:attr="data-department-id=${employee.department.id}"
+                                    th:text="${employee.fullName + ' - ' + employee.department.name}"></option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Issue Date</span>
+                        <input th:field="*{issueDate}" type="date">
+                    </label>
+                    <label>
+                        <span>Condition at Issue</span>
+                        <select th:field="*{conditionAtIssue}">
+                            <option th:each="condition : ${assetConditions}" th:value="${condition.name()}" th:text="${condition}"></option>
+                        </select>
+                    </label>
+                    <label class="full-span">
+                        <span>Issue Notes</span>
+                        <textarea th:field="*{notes}" rows="4" placeholder="Add assignment notes or handover details"></textarea>
+                    </label>
+                    <div class="form-actions full-span">
+                        <button class="btn btn-primary" type="submit">Issue Asset</button>
+                        <a class="btn btn-secondary" th:href="@{/assignments}">Reset</a>
+                    </div>
+                </form>
+            </article>
+
+            <article class="panel" id="return-form">
+                <div class="panel-header">
+                    <h2>Return Asset</h2>
+                    <p th:if="${selectedReturnMovement != null}"
+                       th:text="${selectedReturnMovement.asset.assetTag + ' currently assigned to ' + selectedReturnMovement.employee.fullName}">
+                        Selected assignment
+                    </p>
+                    <p th:if="${selectedReturnMovement == null}">Choose an active assignment below to process a return.</p>
+                </div>
+
+                <div class="empty-state" th:if="${selectedReturnMovement == null}">
+                    Select a row from the active assignments table using the return action link.
+                </div>
+
+                <form th:if="${selectedReturnMovement != null}" th:action="@{/assignments/return}" th:object="${returnForm}" method="post" class="form-grid">
+                    <th:block th:replace="~{fragments/csrf :: token}"></th:block>
+                    <input type="hidden" th:field="*{movementId}">
+                    <label>
+                        <span>Return Date</span>
+                        <input th:field="*{returnDate}" type="date">
+                    </label>
+                    <label>
+                        <span>Condition at Return</span>
+                        <select th:field="*{conditionAtReturn}">
+                            <option th:each="condition : ${assetConditions}" th:value="${condition.name()}" th:text="${condition}"></option>
+                        </select>
+                    </label>
+                    <label class="full-span">
+                        <span>Return Notes</span>
+                        <textarea th:field="*{notes}" rows="4" placeholder="Add return inspection notes or maintenance remarks"></textarea>
+                    </label>
+                    <div class="form-actions full-span">
+                        <button class="btn btn-primary" type="submit">Complete Return</button>
+                        <a class="btn btn-secondary" th:href="@{/assignments}">Cancel</a>
+                    </div>
+                </form>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Active Assignments</h2>
+                <p>Assets currently issued and awaiting return.</p>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Asset Tag</th>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Issued By</th>
+                        <th>Issued At</th>
+                        <th>Condition</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="movement : ${openAssignments}">
+                        <td th:text="${movement.asset.assetTag}">ATL-LAP-001</td>
+                        <td th:text="${movement.employee != null ? movement.employee.fullName : '-'}">User</td>
+                        <td th:text="${movement.toDepartment != null ? movement.toDepartment.name : '-'}">IT</td>
+                        <td th:text="${movement.issuedBy}">Admin</td>
+                        <td th:text="${#temporals.format(movement.issuedAt, 'dd MMM yyyy HH:mm')}">23 Apr 2026 15:00</td>
+                        <td th:text="${movement.conditionAtIssue}">Good</td>
+                        <td>
+                            <a class="btn btn-link" th:href="@{/assignments(returnId=${movement.id})}">Return</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(openAssignments)}">
+                        <td colspan="7">There are no active assignments right now.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Movement History</h2>
+                <p>Full issue and return history for accountability.</p>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Asset Tag</th>
+                        <th>Movement Type</th>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Issued At</th>
+                        <th>Returned At</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="movement : ${movementHistory}">
+                        <td th:text="${movement.asset.assetTag}">ATL-LAP-001</td>
+                        <td th:text="${movement.movementType}">Issue</td>
+                        <td th:text="${movement.employee != null ? movement.employee.fullName : '-'}">User</td>
+                        <td th:text="${movement.toDepartment != null ? movement.toDepartment.name : '-'}">IT</td>
+                        <td th:text="${#temporals.format(movement.issuedAt, 'dd MMM yyyy HH:mm')}">23 Apr 2026 15:00</td>
+                        <td th:text="${movement.returnedAt != null ? #temporals.format(movement.returnedAt, 'dd MMM yyyy HH:mm') : '-'}">24 Apr 2026 10:00</td>
+                        <td th:text="${movement.lifecycleStatus}">Open</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(movementHistory)}">
+                        <td colspan="7">No movement history available.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

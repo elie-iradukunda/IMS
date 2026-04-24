@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="auth-page">
+<main class="auth-shell">
+    <section class="auth-hero">
+        <div class="brand-name">IMS</div>
+        <h1>Inventory Management System for End-User Equipment</h1>
+        <p>Securely log in to manage devices, assignments, returns, audit trails, and reporting from one Spring Boot MVC platform.</p>
+        <ul>
+            <li>Professional dashboard for inventory visibility</li>
+            <li>Accountable assignment and return processing</li>
+            <li>Role-aware access with account registration</li>
+        </ul>
+    </section>
+
+    <section class="auth-card">
+        <h2>Sign In</h2>
+        <p class="subtitle">Use your account credentials to access the platform.</p>
+
+        <div class="alert alert-danger" th:if="${param.error}">
+            Invalid username or password. Please try again.
+        </div>
+        <div class="alert alert-success" th:if="${param.logout}">
+            You have been logged out successfully.
+        </div>
+        <div th:replace="~{fragments/messages :: flash}"></div>
+
+        <form th:action="@{/login}" method="post" class="form-grid">
+            <th:block th:replace="~{fragments/csrf :: token}"></th:block>
+            <label>
+                <span>Username</span>
+                <input type="text" name="username" placeholder="Enter your username" required autofocus>
+            </label>
+            <label>
+                <span>Password</span>
+                <input type="password" name="password" placeholder="Enter your password" required>
+            </label>
+            <label class="checkbox-field">
+                <input type="checkbox" name="remember-me">
+                <span>Keep me signed in</span>
+            </label>
+            <button class="btn btn-primary btn-block" type="submit">Login</button>
+        </form>
+
+        <div class="auth-footer">
+            <span>Need a new account?</span>
+            <a th:href="@{/register}">Create account</a>
+        </div>
+
+        <div class="credential-box">
+            <strong>SysAdmin account</strong>
+            <span>Username: <code>24RP04887</code></span>
+            <span>Password: <code>24RP00463</code></span>
+        </div>
+    </section>
+</main>
+</body>
+</html>

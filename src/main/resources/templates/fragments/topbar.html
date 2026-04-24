@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="topbar(title, subtitle)" class="page-topbar">
+    <div>
+        <p class="eyebrow">Inventory Operations</p>
+        <h1 th:text="${title}">Inventory Dashboard</h1>
+        <p class="subtitle" th:text="${subtitle}">Track equipment availability and assignments.</p>
+    </div>
+    <div class="topbar-meta">
+        <span th:text="${currentTimestamp}">23 Apr 2026 15:00</span>
+        <span th:if="${currentUser != null}" th:text="${currentUser.username}">24RP04887</span>
+    </div>
+</header>
+</body>
+</html>

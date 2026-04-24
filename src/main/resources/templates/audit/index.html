@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Trail | IMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<div class="app-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar(${activePage})}"></aside>
+
+    <main class="app-main">
+        <div th:replace="~{fragments/topbar :: topbar(${pageTitle}, ${pageSubtitle})}"></div>
+        <div th:replace="~{fragments/messages :: flash}"></div>
+
+        <section class="toolbar-panel">
+            <form method="get" th:action="@{/audit}" class="toolbar-form">
+                <input type="text" name="q" th:value="${q}" placeholder="Search by asset tag, actor, action, or details">
+                <select name="action">
+                    <option value="">All Actions</option>
+                    <option th:each="option : ${auditActions}" th:value="${option.name()}" th:text="${option}"
+                            th:selected="${selectedAction == option}"></option>
+                </select>
+                <button class="btn btn-primary" type="submit">Filter</button>
+                <a class="btn btn-secondary" th:href="@{/audit}">Reset</a>
+            </form>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h2>Audit Entries</h2>
+                <p th:text="${#lists.size(auditEntries)} + ' records found'">0 records found</p>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Asset Tag</th>
+                        <th>Action</th>
+                        <th>Actor</th>
+                        <th>Details</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="entry : ${auditEntries}">
+                        <td th:text="${#temporals.format(entry.createdAt, 'dd MMM yyyy HH:mm')}">23 Apr 2026 15:00</td>
+                        <td th:text="${entry.assetTagSnapshot}">ATL-LAP-001</td>
+                        <td th:text="${entry.action}">Registered</td>
+                        <td th:text="${entry.actorName}">Admin</td>
+                        <td th:text="${entry.details}">Created asset record</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(auditEntries)}">
+                        <td colspan="5">No audit entries matched the current filters.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

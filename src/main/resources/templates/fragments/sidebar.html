@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar(activePage)" class="sidebar-shell">
+    <div class="brand-block">
+        <div class="brand-name">IMS</div>
+        <h2>End-User Equipment</h2>
+        <p>Spring Boot MVC inventory platform with secure login, MySQL storage, full CRUD workflows, and accountable reporting.</p>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a th:href="@{/dashboard}" th:classappend="${activePage == 'dashboard'} ? ' active'">Dashboard</a>
+        <a th:href="@{/assets}" th:classappend="${activePage == 'assets'} ? ' active'">Asset Registry</a>
+        <a th:href="@{/assignments}" th:classappend="${activePage == 'assignments'} ? ' active'">Assignments</a>
+        <a th:href="@{/reports}" th:classappend="${activePage == 'reports'} ? ' active'">Reports</a>
+        <a th:href="@{/audit}" th:classappend="${activePage == 'audit'} ? ' active'">Audit Trail</a>
+    </nav>
+
+    <div class="sidebar-user" th:if="${currentUser != null}">
+        <div class="user-role-chip" th:text="${currentUser.role.label}">Administrator</div>
+        <strong th:text="${currentUser.fullName}">SysAdmin</strong>
+        <span th:text="${currentUser.email}">24rp04887@ims.local</span>
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <th:block th:replace="~{fragments/csrf :: token}"></th:block>
+            <button class="btn btn-secondary btn-block" type="submit">Logout</button>
+        </form>
+    </div>
+</aside>
+</body>
+</html>
