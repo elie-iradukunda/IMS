@@ -21,6 +21,14 @@ public class AuthController {
         this.accountService = accountService;
     }
 
+    @GetMapping("/")
+    public String home(Authentication authentication) {
+        if (isAuthenticated(authentication)) {
+            return "redirect:/dashboard";
+        }
+        return "auth/login";
+    }
+
     @GetMapping("/login")
     public String login(Authentication authentication) {
         if (isAuthenticated(authentication)) {

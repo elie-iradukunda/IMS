@@ -70,6 +70,11 @@ class NavigationIntegrationTest {
 
     @Test
     void shouldRenderPublicPagesAndProtectedNavigation() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("24RP04887 - Elie Iradukunda")))
+                .andExpect(content().string(Matchers.containsString("24RP00463 - Ufiteyesu Esther")));
+
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Sign In")))

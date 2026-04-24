@@ -1,0 +1,10 @@
+.git
+.gitignore
+target
+logs
+data
+exports
+.settings
+.classpath
+.project
+README.md

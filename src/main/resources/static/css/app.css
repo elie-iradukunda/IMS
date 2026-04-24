@@ -445,6 +445,20 @@ tbody tr:hover {
     margin-top: 1.2rem;
 }
 
+.developer-card {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1rem 1.1rem;
+    background: rgba(255, 248, 240, 0.95);
+    border: 1px solid rgba(239, 93, 33, 0.14);
+    border-radius: 22px;
+    color: #4c5f79;
+}
+
+.developer-card strong {
+    color: var(--brand-dark);
+}
+
 .auth-page {
     min-height: 100vh;
     display: grid;

@@ -30,7 +30,7 @@ public class DashboardController {
         this.auditService = auditService;
     }
 
-    @GetMapping({ "/", "/dashboard" })
+    @GetMapping("/dashboard")
     public String dashboard(Model model) {
         DashboardSummary summary = dashboardService.getSummary();
 
